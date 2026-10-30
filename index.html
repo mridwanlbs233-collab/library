@@ -3,26 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Katalog Perpustakaan</title>
+  <title>BacaIn</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <!-- LOGIN -->
   <section id="login" class="login">
-    <form id="login-form" novalidate>
-      <h1>Katalog Perpustakaan</h1>
-      <p class="hint">Akun contoh: admin / admin123, ridwan / ridwan123</p>
-      <label>Username<input id="login-user" autocomplete="username"></label>
-      <label>Password<input id="login-pass" type="password" autocomplete="current-password"></label>
-      <p id="login-err" class="err" role="alert"></p>
-      <button class="btn">Masuk</button>
-    </form>
+    <div class="login-card">
+      <div class="brand-panel">
+        <p class="logo">Baca<span>In</span></p>
+        <p class="tagline">Cari, pinjam, dan kembalikan buku dengan mudah.</p>
+      </div>
+      <form id="login-form" novalidate>
+        <h1>Masuk ke akun</h1>
+        <p class="hint">Akun contoh: admin / admin123, ridwan / ridwan123</p>
+        <label>Username<input id="login-user" autocomplete="username"></label>
+        <label>Password<input id="login-pass" type="password" autocomplete="current-password"></label>
+        <p id="login-err" class="err" role="alert"></p>
+        <button class="btn">Masuk</button>
+      </form>
+    </div>
   </section>
 
   <!-- APLIKASI -->
   <div id="app" hidden>
     <header class="topbar">
-      <h1>Katalog Perpustakaan</h1>
+      <h1 class="brand">Baca<span>In</span></h1>
       <div class="user-box">
         <span id="who"></span>
         <span id="loan-count"></span>
