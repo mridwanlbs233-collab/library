@@ -5,6 +5,7 @@ const KEY = "lib_v2", SES = "lib_user", PER_PAGE = 6, MAX_PINJAM = 3, LAMA = 7, 
 const USERS = {
   admin:  { pw: "admin123",  role: "admin" },
   ridwan: { pw: "ridwan123", role: "anggota" },
+  sinta:  { pw: "sinta123",  role: "anggota" }
 };
 
 // [judul, penulis, kategori, tahun, stok, deskripsi] (tahun dan deskripsi hanya data contoh)
@@ -47,11 +48,12 @@ const addDays = (s, n) => { const d = day(s); d.setUTCDate(d.getUTCDate() + n); 
 const lateDays = l => Math.max(0, Math.round((day(l.returned || today()) - day(l.due)) / 864e5));
 const rp = n => "Rp" + n.toLocaleString("id-ID");
 const hue = s => [...s].reduce((a, c) => a + c.charCodeAt(0), 0) * 37 % 360;
-const isAdmin = () => me && USERS[me].role === "admin";
+const isAdmin = () => !!me && USERS[me].role === "admin";
 const myLoans = () => db.loans.filter(l => l.user === me && !l.returned);
 const loanOf = id => myLoans().find(l => l.bookId === id);
 const queueOf = id => db.queue.filter(q => q.bookId === id);
 const findBook = id => db.books.find(b => b.id === id);
+const NOT_ADMIN = "Hanya admin yang boleh melakukan ini.";
 
 let tt;
 function toast(msg) {
@@ -133,6 +135,7 @@ function render() {
   $("who").textContent = `${me} (${USERS[me].role})`;
   $("loan-count").textContent = isAdmin() ? `Pinjaman aktif: ${db.loans.filter(l => !l.returned).length}` : `Pinjaman: ${myLoans().length}/${MAX_PINJAM}`;
   $("add-btn").hidden = !isAdmin();
+  $("reset-btn").hidden = !isAdmin();
   $("sim-date").value = today();
   fillCats();
 
@@ -183,6 +186,7 @@ function toggleQueue(id) {
 
 // ====== ADMIN: TAMBAH / EDIT / HAPUS ======
 function openForm(id) {
+  if (!isAdmin()) return toast(NOT_ADMIN);
   const b = findBook(id) || { title: "", author: "", category: "", tahun: "", stock: 1, desc: "" };
   const f = (n, l, t = "text") => `<label>${l}<input name="${n}" type="${t}" value="${esc(b[n])}"></label>`;
   $("dlg").innerHTML = `<form id="bf" data-id="${id || ""}" novalidate><h2>${id ? "Edit" : "Tambah"} buku</h2>
@@ -197,6 +201,7 @@ function openForm(id) {
 $("dlg").addEventListener("submit", e => {
   if (e.target.id !== "bf") return;   // form "Tutup" pada detail dibiarkan menutup dialog
   e.preventDefault();
+  if (!isAdmin()) return toast(NOT_ADMIN);
   const id = Number(e.target.dataset.id) || 0, f = Object.fromEntries(new FormData(e.target));
   const title = f.title.trim(), author = f.author.trim(), category = f.category.trim();
   const tahun = Number(f.tahun), stock = Number(f.stock), errs = [];
@@ -215,6 +220,7 @@ $("dlg").addEventListener("submit", e => {
 });
 
 function removeBook(id) {
+  if (!isAdmin()) return toast(NOT_ADMIN);
   const b = findBook(id);
   if (!b) return;
   if (db.loans.some(l => l.bookId === id && !l.returned)) return toast("Buku sedang dipinjam, tidak bisa dihapus.");
@@ -248,6 +254,7 @@ const ACTIONS = {
   clear: clearFilters,
   logout: () => { me = null; sessionStorage.removeItem(SES); showHist = false; render(); },
   reset: () => {
+    if (!isAdmin()) return toast(NOT_ADMIN);
     if (!confirm("Kembalikan semua data (buku, riwayat, antrean) ke kondisi awal?")) return;
     db = fresh(); save(); page = 1; render(); toast("Data direset.");
   }
